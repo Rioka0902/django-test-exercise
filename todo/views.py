@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.http import Http404
 from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
@@ -35,25 +35,18 @@ def detail(request, task_id):
     }
     return render(request, 'todo/detail.html', context)
 
-def edit(request, task_id):
-    # 対象のタスクを取得。存在しない場合は自動的に404エラー画面を返す
-    task = get_object_or_404(Task, pk=task_id)
-    
+def update(request, task_id):
+    try:
+        task = Task.objects.get(pk=task_id)
+    except Task.DoesNotExist:
+        raise Http404("Task does not exist")
     if request.method == 'POST':
-        # フォームから送信された新しい入力値でタスクの内容を書き換える
         task.title = request.POST['title']
+        task.due_at = make_aware(parse_datetime(request.POST['due_at']))
+        task.save()
+        return redirect(detail, task_id)
         
-        # 締め切り時間が入力されている場合のみ日時のタイムゾーンを補正してセット
-        if request.POST.get('due_at'):
-            task.due_at = make_aware(parse_datetime(request.POST['due_at']))
-        else:
-            task.due_at = None
-            
-        task.save() # データベースに上書き保存
-        return redirect('index') # 完了したらトップページ（index）に画面を戻す
-        
-    # GETリクエスト（編集画面を初めて開いた時）は現在のタスクのデータをテンプレートに渡す
     context = {
-        'task': task,
+        'task': task
     }
-    return render(request, 'todo/edit.html', context)
+    return render(request, "todo/edit.html", context)

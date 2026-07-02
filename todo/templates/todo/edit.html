@@ -1,25 +1,31 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
+    <title>To Do Application</title>
     <meta charset="UTF-8">
-    <title>タスクの編集</title>
+    <meta name="author" content="INIAD">
 </head>
+
 <body>
-    <h1>タスクの編集</h1>
-    
-    <form action="{% url 'edit' task.pk %}" method="POST">
+    <h1>Edit task</h1>
+    <p>You can edit tasks from the following form.</p>
+
+    <form action="{% url 'update' task.id %}" method="post">
         {% csrf_token %}
         <div>
-            <label for="title">タスク名:</label>
-            <input type="text" name="title" id="title" value="{{ task.title }}" required>
+            <label for="titleInput">Title</label><br>
+            <input id="titleInput" name="title" type="text" placeholder="Input title" value="{{ task.title }}">
         </div>
         <div>
-            <label for="due_at">締め切り:</label>
-            <input type="datetime-local" name="due_at" id="due_at" value="{{ task.due_at|date:'Y-m-d\TH:i' }}">
+            <label for="dueInput">Due at:</label><br>
+            <input id="dueInput" name="due_at" type="datetime-local" value="{{ task.due_at | date:"Y-m-d H:i" }}">
         </div>
-        <button type="submit">更新する</button>
+        <div>
+            <button type="submit">Submit</button>
+        </div>
     </form>
-
-    <a href="{% url 'index' %}">戻る</a>
 </body>
+
 </html>
